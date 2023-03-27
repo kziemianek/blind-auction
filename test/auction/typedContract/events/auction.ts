@@ -16,6 +16,20 @@ export default class EventsClass {
 		this.__api = api;
 	}
 
+	public subscribeOnAuctionCreatedEvent(callback : (event : EventTypes.AuctionCreated) => void) {
+		const callbackWrapper = (args: any[], event: any) => {
+			const _event: Record < string, any > = {};
+
+			for (let i = 0; i < args.length; i++) {
+				_event[event.args[i]!.name] = args[i]!.toJSON();
+			}
+
+			callback(handleEventReturn(_event, getEventTypeDescription('AuctionCreated', 'auction')) as EventTypes.AuctionCreated);
+		};
+
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'AuctionCreated');
+	}
+
 
 	private __subscribeOnEvent(
 		callback : (args: any[], event: any) => void,

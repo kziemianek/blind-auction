@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xa678ebdcaca643739bce33977d3a4b2db51f117353eae07e09d1977a36f05efa",
+    "hash": "0xf8735799a51a74967b58ef5aafefb6f14267197998c8516c57c964fdbf283f5b",
     "language": "ink! 4.1.0",
     "compiler": "rustc 1.69.0-nightly",
     "build_info": {
@@ -32,37 +32,254 @@
             "ink_primitives",
             "ConstructorResult"
           ],
-          "type": 0
+          "type": 6
         },
         "selector": "0xed4b9d1b"
       }
     ],
     "docs": [],
-    "events": [],
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "auction_id",
+            "type": {
+              "displayName": [
+                "AuctionId"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "owner",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "end",
+            "type": {
+              "displayName": [
+                "BlockNumber"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "reveal_phase_start",
+            "type": {
+              "displayName": [
+                "BlockNumber"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "starting_price",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "required_escrow",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "label": "AuctionCreated"
+      }
+    ],
     "lang_error": {
       "displayName": [
         "ink",
         "LangError"
       ],
-      "type": 2
+      "type": 8
     },
     "messages": [
       {
-        "args": [],
-        "docs": [
-          " Returns a bounty with a given id"
+        "args": [
+          {
+            "label": "end",
+            "type": {
+              "displayName": [
+                "BlockNumber"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "starting_price",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "label": "required_escrow",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 4
+            }
+          }
         ],
-        "label": "void",
-        "mutates": false,
+        "docs": [
+          " Creates auction with given end block number, starting_price and required escrow. Escrow should be deposited by owner and bidders to make sure all sides follows the rules."
+        ],
+        "label": "create_auction",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 9
+        },
+        "selector": "0xd6cd59d7"
+      },
+      {
+        "args": [
+          {
+            "label": "auction_id",
+            "type": {
+              "displayName": [
+                "AuctionId"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [],
+        "label": "join",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 12
+        },
+        "selector": "0x2c254e82"
+      },
+      {
+        "args": [
+          {
+            "label": "auction_id",
+            "type": {
+              "displayName": [
+                "AuctionId"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "bid_signature",
+            "type": {
+              "displayName": [],
+              "type": 2
+            }
+          }
+        ],
+        "docs": [],
+        "label": "bid",
+        "mutates": true,
         "payable": false,
         "returnType": {
           "displayName": [
             "ink",
             "MessageResult"
           ],
-          "type": 0
+          "type": 12
         },
-        "selector": "0x2b7309fa"
+        "selector": "0x668d28a7"
+      },
+      {
+        "args": [
+          {
+            "label": "auction_id",
+            "type": {
+              "displayName": [
+                "AuctionId"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "bid",
+            "type": {
+              "displayName": [
+                "Balance"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "label": "reveal_bid",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 12
+        },
+        "selector": "0x638815f1"
+      },
+      {
+        "args": [
+          {
+            "label": "auction_id",
+            "type": {
+              "displayName": [
+                "AuctionId"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [],
+        "label": "close",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 12
+        },
+        "selector": "0x3c922166"
       }
     ]
   },
@@ -70,8 +287,135 @@
     "root": {
       "layout": {
         "struct": {
-          "fields": [],
-          "name": "Auction"
+          "fields": [
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "last_auction_id"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 0
+                            }
+                          },
+                          "name": "id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 1
+                            }
+                          },
+                          "name": "owner"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 0
+                            }
+                          },
+                          "name": "end"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 0
+                            }
+                          },
+                          "name": "reveal_phase_start"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 4
+                            }
+                          },
+                          "name": "starting_price"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xb2b30d4d",
+                              "ty": 4
+                            }
+                          },
+                          "name": "required_escrow"
+                        }
+                      ],
+                      "name": "Auction"
+                    }
+                  },
+                  "root_key": "0xb2b30d4d"
+                }
+              },
+              "name": "auctions"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0xff768a98",
+                      "ty": 5
+                    }
+                  },
+                  "root_key": "0xff768a98"
+                }
+              },
+              "name": "participants"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "array": {
+                      "layout": {
+                        "leaf": {
+                          "key": "0x7816eb0c",
+                          "ty": 3
+                        }
+                      },
+                      "len": 32,
+                      "offset": "0x7816eb0c"
+                    }
+                  },
+                  "root_key": "0x7816eb0c"
+                }
+              },
+              "name": "bids"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x5ee77ea2",
+                      "ty": 4
+                    }
+                  },
+                  "root_key": "0x5ee77ea2"
+                }
+              },
+              "name": "revealed_bids"
+            }
+          ],
+          "name": "AuctionHouse"
         }
       },
       "root_key": "0x00000000"
@@ -82,12 +426,77 @@
       "id": 0,
       "type": {
         "def": {
+          "primitive": "u32"
+        }
+      }
+    },
+    {
+      "id": 1,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "type": 2,
+                "typeName": "[u8; 32]"
+              }
+            ]
+          }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "AccountId"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "type": {
+        "def": {
+          "array": {
+            "len": 32,
+            "type": 3
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": {
+        "def": {
+          "primitive": "u8"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": {
+        "def": {
+          "primitive": "u128"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 1
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": {
+        "def": {
           "variant": {
             "variants": [
               {
                 "fields": [
                   {
-                    "type": 1
+                    "type": 7
                   }
                 ],
                 "index": 0,
@@ -96,7 +505,7 @@
               {
                 "fields": [
                   {
-                    "type": 2
+                    "type": 8
                   }
                 ],
                 "index": 1,
@@ -108,11 +517,11 @@
         "params": [
           {
             "name": "T",
-            "type": 1
+            "type": 7
           },
           {
             "name": "E",
-            "type": 2
+            "type": 8
           }
         ],
         "path": [
@@ -121,7 +530,7 @@
       }
     },
     {
-      "id": 1,
+      "id": 7,
       "type": {
         "def": {
           "tuple": []
@@ -129,7 +538,7 @@
       }
     },
     {
-      "id": 2,
+      "id": 8,
       "type": {
         "def": {
           "variant": {
@@ -144,6 +553,222 @@
         "path": [
           "ink_primitives",
           "LangError"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 8
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 10
+          },
+          {
+            "name": "E",
+            "type": 8
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 0
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 11
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          },
+          {
+            "name": "E",
+            "type": 11
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "NotEnoughEscrow"
+              },
+              {
+                "index": 1,
+                "name": "AuctionHasEnded"
+              },
+              {
+                "index": 2,
+                "name": "RevealPhaseHasStarted"
+              },
+              {
+                "index": 3,
+                "name": "CannotBidTwice"
+              },
+              {
+                "index": 4,
+                "name": "RevealPhaseHasntStartedYet"
+              },
+              {
+                "index": 5,
+                "name": "InvalidBid"
+              },
+              {
+                "index": 6,
+                "name": "CannotCloseAuction"
+              },
+              {
+                "index": 7,
+                "name": "UnknownAuction"
+              }
+            ]
+          }
+        },
+        "path": [
+          "auction",
+          "auction",
+          "Error"
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 13
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 8
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 13
+          },
+          {
+            "name": "E",
+            "type": 8
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 7
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 11
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 7
+          },
+          {
+            "name": "E",
+            "type": 11
+          }
+        ],
+        "path": [
+          "Result"
         ]
       }
     }

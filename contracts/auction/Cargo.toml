@@ -10,6 +10,10 @@ ink = { version = "4.0.0", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
+[dev-dependencies]
+ink_e2e = { version = "4.0" }
+ink-test-utils = { git = "https://github.com/kziemianek/ink-test-utils.git" }
+
 [lib]
 name = "auction"
 path = "src/lib.rs"
@@ -23,6 +27,10 @@ default = ["std"]
 std = [
     "ink/std",
     "scale/std",
-    "scale-info/std"
+    "scale-info/std",
+    "ink-test-utils/std"
 ]
 ink-as-dependency = []
+e2e-tests = [
+        "ink-test-utils/std"
+]
