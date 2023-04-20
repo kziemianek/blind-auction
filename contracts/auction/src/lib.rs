@@ -18,6 +18,7 @@ mod auction {
         InvalidBid,
         CannotCloseAuction,
         UnknownAuction,
+        NotBidded,
     }
 
     #[ink(event)]
@@ -44,6 +45,16 @@ mod auction {
         pub reveal_phase_start: BlockNumber,
         pub starting_price: Balance,
         pub required_escrow: Balance,
+    }
+
+    #[derive(scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(ink::storage::traits::StorageLayout, scale_info::TypeInfo)
+    )]
+    pub struct CommitedBid {
+        pub signature: [[u8; 32]; 2],
+        pub public_key: [u8; 32],
     }
 
     impl Auction {
@@ -85,7 +96,7 @@ mod auction {
         last_auction_id: AuctionId,
         auctions: Mapping<AuctionId, Auction>,
         participants: Mapping<AuctionId, Vec<AccountId>>,
-        bids: Mapping<(AuctionId, AccountId), [u8; 32]>,
+        commited_bids: Mapping<(AuctionId, AccountId), CommitedBid>,
         revealed_bids: Mapping<(AuctionId, AccountId), Balance>,
     }
 
@@ -96,7 +107,7 @@ mod auction {
                 last_auction_id: AuctionId::default(),
                 auctions: Mapping::default(),
                 participants: Mapping::default(),
-                bids: Mapping::default(),
+                commited_bids: Mapping::default(),
                 revealed_bids: Mapping::default(),
             }
         }
@@ -162,15 +173,30 @@ mod auction {
         }
 
         #[ink(message)]
-        pub fn bid(&mut self, auction_id: AuctionId, bid_signature: [u8; 32]) -> Result<()> {
+        pub fn bid(
+            &mut self,
+            auction_id: AuctionId,
+            bid_signature: [u8; 64],
+            public_key: [u8; 32],
+        ) -> Result<()> {
             let bidder = ink::env::caller::<DefaultEnvironment>();
             let current_block = ink::env::block_number::<DefaultEnvironment>();
-            let auction = self.get_auction(auction_id)?;
+            let auction: Auction = self.get_auction(auction_id)?;
             auction.assert_not_ended(current_block)?;
             auction.assert_reveal_phase_not_started(current_block)?;
+            let mut first_part: [u8; 32] = [0; 32];
+            first_part.copy_from_slice(&bid_signature[..32]);
+            let mut second_part: [u8; 32] = [0; 32];
+            second_part.copy_from_slice(&bid_signature[32..64]);
 
-            if let None = self.bids.get((auction_id, bidder)) {
-                self.bids.insert((auction_id, bidder), &bid_signature);
+            if let None = self.commited_bids.get((auction_id, bidder)) {
+                self.commited_bids.insert(
+                    (auction_id, bidder),
+                    &CommitedBid {
+                        signature: [first_part, second_part],
+                        public_key,
+                    },
+                );
             } else {
                 return Err(Error::CannotBidTwice);
             }
@@ -180,19 +206,19 @@ mod auction {
 
         #[ink(message)]
         pub fn reveal_bid(&mut self, auction_id: AuctionId, bid: Balance) -> Result<()> {
-            let current_block = ink::env::block_number::<DefaultEnvironment>();
+            let current_block: u32 = ink::env::block_number::<DefaultEnvironment>();
             let auction = self.get_auction(auction_id)?;
             if current_block < auction.reveal_phase_start {
                 return Err(Error::RevealPhaseHasntStartedYet);
             }
             auction.assert_not_ended(current_block)?;
-
             let bidder = ink::env::caller::<DefaultEnvironment>();
-            if self.verify_bid(auction_id, bidder, bid) {
-                self.revealed_bids.insert((auction_id, bidder), &bid);
-            } else {
-                return Err(Error::InvalidBid);
-            }
+            let commited_bid = self
+                .commited_bids
+                .get((auction_id, bidder))
+                .ok_or(Error::NotBidded)?;
+            self.verify_bid(bid, commited_bid)?;
+            self.revealed_bids.insert((auction_id, bidder), &bid);
             Ok(())
         }
 
@@ -256,10 +282,14 @@ mod auction {
             return Ok(());
         }
 
-        fn verify_bid(&mut self, auction_id: AuctionId, bidder: AccountId, bid: Balance) -> bool {
-            // todo: impl body
-            // let bid = self.bids.get((auction_id, bidder)).unwrap();
-            true
+        fn verify_bid(&mut self, bid: Balance, comitted_bid: CommitedBid) -> Result<()> {
+            let mut signature: [u8; 64] = [0; 64];
+            signature[..32].copy_from_slice(&comitted_bid.signature[0]);
+            signature[32..64].copy_from_slice(&comitted_bid.signature[1]);
+            let bid: u128 = bid as u128;
+            let message: &[u8] = &bid.to_le_bytes();
+            ink::env::sr25519_verify(&signature, &message, &comitted_bid.public_key)
+                .map_err(|_| Error::InvalidBid)
         }
 
         fn get_auction(&self, auction_id: AuctionId) -> Result<Auction> {

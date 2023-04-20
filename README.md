@@ -22,3 +22,6 @@ In this phase escrow deposits are returned to honest participants, dishonest par
 * bidders ending  - time window in which any participant who revealed bid is allowed to end auction
 
 
+## Deployment environment
+
+Contract needs to be deployed on substrate node build from master with unstable interfaces enabled, see https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces .
